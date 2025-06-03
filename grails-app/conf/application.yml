@@ -6,22 +6,22 @@ info:
 dataSource:
   driverClassName: com.mysql.cj.jdbc.Driver
   username: root
-  password: ''
+  password: 'password'
   pooled: true
   jmxExport: true
 environments:
   development:
     dataSource:
       dbCreate: create-drop
-      url: jdbc:mysql://localhost:3306/devDb
+      url: jdbc:mysql://localhost:3306/conversion_kit
   test:
     dataSource:
       dbCreate: update
-      url: jdbc:mysql://localhost:3306/testDb
+      url: jdbc:mysql://localhost:3306/conversion_kit
   production:
     dataSource:
       dbCreate: none
-      url: jdbc:mysql://localhost:3306/prodDb
+      url: jdbc:mysql://localhost:3306/conversion_kit
       properties:
         jmxEnabled: true
         initialSize: 5
