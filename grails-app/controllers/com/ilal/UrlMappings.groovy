@@ -9,6 +9,7 @@ class UrlMappings {
         }
 
         "/"(view:"/index")
+        "/bin2dec"(controller: 'biner2Decimal', action: 'index')
         "500"(view:'/error')
         "404"(view:'/notFound')
 
