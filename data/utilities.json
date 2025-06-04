@@ -1,0 +1,74 @@
+[
+  {
+    "nameCode": "util.bin2dec.name",
+    "defaultName": "Binary to Decimal",
+    "descriptionCode": "util.bin2dec.desc",
+    "defaultDesc": "Convert binary numbers to decimal and vice-versa.",
+    "icon": "fas fa-calculator",
+    "linkDetails": {
+      "controller": "bin2Dec",
+      "action": "index",
+      "uri": "/bin2dec"
+    }
+  },
+  {
+    "nameCode": "util.csv2json.name",
+    "defaultName": "CSV to JSON",
+    "descriptionCode": "util.csv2json.desc",
+    "defaultDesc": "Transform data from CSV to JSON format.",
+    "icon": "fas fa-file-csv",
+    "linkDetails": {
+      "uri": "#"
+    }
+  },
+  {
+    "nameCode": "util.dollars2cents.name",
+    "defaultName": "Dollars to Cents",
+    "descriptionCode": "util.dollars2cents.desc",
+    "defaultDesc": "Convert dollars to cents.",
+    "icon": "fas fa-coins",
+    "linkDetails": {
+      "uri": "#"
+    }
+  },
+  {
+    "nameCode": "util.json2csv.name",
+    "defaultName": "JSON to CSV",
+    "descriptionCode": "util.json2csv.desc",
+    "defaultDesc": "Transform data from JSON to CSV format.",
+    "icon": "fas fa-file-code",
+    "linkDetails": {
+      "uri": "#"
+    }
+  },
+  {
+    "nameCode": "util.appRandom.name",
+    "defaultName": "App Random",
+    "descriptionCode": "util.appRandom.desc",
+    "defaultDesc": "Generate random data or choices.",
+    "icon": "fas fa-shuffle",
+    "linkDetails": {
+      "uri": "#"
+    }
+  },
+  {
+    "nameCode": "util.randomNumber.name",
+    "defaultName": "Random Number Generator",
+    "descriptionCode": "util.randomNumber.desc",
+    "defaultDesc": "Generate random number between range.",
+    "icon": "fas fa-dice",
+    "linkDetails": {
+      "uri": "#"
+    }
+  },
+  {
+    "nameCode": "util.roman2decimal.name",
+    "defaultName": "Roman to Decimal",
+    "descriptionCode": "util.roman2decimal.desc",
+    "defaultDesc": "convert roman numbers to decimal and vice-versa.",
+    "icon": "fas fa-landmark",
+    "linkDetails": {
+      "uri": "#"
+    }
+  }
+]

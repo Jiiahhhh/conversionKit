@@ -8,7 +8,8 @@ class UrlMappings {
             }
         }
 
-        "/"(view:"/index")
+//        "/"(view:"/index")
+        "/"(controller: 'home', action: 'index')
         "/bin2dec"(controller: 'biner2Decimal', action: 'index')
         "500"(view:'/error')
         "404"(view:'/notFound')

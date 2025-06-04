@@ -1,0 +1,92 @@
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bs-light); /* Warna latar belakang dasar */
+    transition: background-color 0.3s ease;
+}
+
+html[data-bs-theme="dark"] body {
+    background-color: var(--bs-dark); /* Warna latar belakang untuk mode gelap */
+}
+
+.hero-section {
+    background: linear-gradient(135deg, var(--bs-primary-bg-subtle) 0%, var(--bs-info-bg-subtle) 100%);
+    padding: 4rem 1.5rem; /* Penyesuaian padding untuk tampilan mobile */
+    margin-bottom: 3rem;
+    border-bottom: 1px solid var(--bs-border-color);
+    text-align: center;
+}
+
+html[data-bs-theme="dark"] .hero-section {
+    background: linear-gradient(135deg, #0d1f3a 0%, #1a0d3a 100%); /* Gradient gelap yang lebih menarik */
+}
+
+.hero-section h1 {
+    font-weight: 700;
+    color: var(--bs-emphasis-color);
+}
+
+.hero-section p {
+    font-size: 1.15rem;
+    color: var(--bs-secondary-color);
+}
+
+.utility-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    border: none; /* Hapus border default kartu */
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.05); /* Bayangan halus */
+}
+
+.utility-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.1); /* Bayangan lebih menonjol saat hover */
+}
+
+.utility-card .card-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 2rem 1.5rem; /* Padding lebih besar */
+}
+
+.utility-card .card-icon {
+    font-size: 3rem; /* Ukuran ikon lebih besar */
+    margin-bottom: 1rem;
+    color: var(--bs-primary); /* Warna ikon utama */
+    transition: color 0.3s ease;
+}
+
+html[data-bs-theme="dark"] .utility-card .card-icon {
+    color: var(--bs-primary-text-emphasis);
+}
+
+
+.utility-card .card-title {
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+.utility-card .card-text {
+    font-size: 0.9rem;
+    color: var(--bs-secondary-color);
+    min-height: 40px; /* Untuk konsistensi tinggi deskripsi */
+    margin-bottom: 1.25rem;
+}
+
+.utility-card .btn {
+    font-weight: 500;
+}
+
+.footer-custom {
+    padding: 2rem 0;
+    border-top: 1px solid var(--bs-border-color);
+    font-size: 0.9rem;
+}
+
+/* Styling untuk tombol ganti tema jika Anda ingin menambahkannya di homepage */
+.theme-toggle-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+}
