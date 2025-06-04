@@ -30,3 +30,40 @@ body {
     border-color: #86b7fe;
     box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
 }
+
+/* Di bin2dec.css atau file CSS kustom Anda */
+html[data-bs-theme="dark"] .select2-dropdown {
+    background-color: #343a40; /* Warna latar belakang gelap yang sesuai */
+    border-color: #495057; /* Warna border yang sesuai */
+    color: #f8f9fa; /* Warna teks yang sesuai */
+}
+
+html[data-bs-theme="dark"] .select2-results__option {
+    color: #f8f9fa; /* Warna teks untuk pilihan */
+}
+
+html[data-bs-theme="dark"] .select2-results__option--highlighted {
+    background-color: #007bff; /* Warna highlight Bootstrap primary, atau sesuaikan */
+    color: white;
+}
+
+html[data-bs-theme="dark"] .select2-search__field {
+    background-color: #495057;
+    color: #f8f9fa;
+    border-color: #6c757d;
+}
+
+/* Gaya untuk input Select2 yang terlihat sebelum dropdown dibuka */
+html[data-bs-theme="dark"] .select2-container--bootstrap-5 .select2-selection {
+    background-color: #2b3035; /* Sesuaikan dengan input form Bootstrap dark mode */
+    border-color: #495057;
+    color: #f8f9fa;
+}
+
+html[data-bs-theme="dark"] .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+    color: #f8f9fa; /* Warna teks untuk item yang terpilih */
+}
+
+html[data-bs-theme="dark"] .select2-container--bootstrap-5 .select2-selection--single .select2-selection__arrow b {
+    border-color: #f8f9fa transparent transparent transparent; /* Warna panah dropdown */
+}

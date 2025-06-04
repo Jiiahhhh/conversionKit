@@ -1,4 +1,13 @@
 (function ($) {
+    var i18n = window.i18nData || {};
+    function formatString(str) {
+        if (!str) return "";
+        for (var i = 1; i < arguments.length; i++) {
+            var regexp = new RegExp('\\{' + (i - 1) + '\\}', 'gi');
+            str = str.replace(regexp, arguments[i] === undefined ? '' : arguments[i]);
+        }
+        return str;
+    }
     $(function () {
         // --- APPLICATION STATE & SETTINGS ---
         var appState = {
@@ -7,8 +16,7 @@
             inputBase: 10,
             outputBase: 2,
             errorMessage: "",
-            conversionSteps:
-                "Langkah-langkah akan muncul di sini setelah konversi berhasil.",
+            conversionSteps: i18n.stepsPlaceholder,
             history: [],
         };
 
@@ -33,25 +41,22 @@
         var $historyList = $("#history-list");
         var $clearHistoryButton = $("#clear-history-button");
         var $settingsButton = $("#settings-button");
-        var settingsModal = new bootstrap.Modal(
-            document.getElementById("settings-modal-bootstrap")
-        ); // Bootstrap modal instance
+        var settingsModal = new bootstrap.Modal(document.getElementById("settings-modal")); // Bootstrap modal instance
         var $themeToggleCheckbox = $("#theme-toggle-checkbox");
         var $groupingToggleCheckbox = $("#grouping-toggle-checkbox");
 
         // --- UTILITY FUNCTIONS ---
         var getBaseName = function (base) {
+            var baseKey = String(base);
+            if (i18n.baseNames && i18n.baseNames[baseKey]) {
+                return i18n.baseNames[baseKey];
+            }
             switch (parseInt(base)) {
-                case 2:
-                    return "Biner";
-                case 8:
-                    return "Oktal";
-                case 10:
-                    return "Desimal";
-                case 16:
-                    return "Heksadesimal";
-                default:
-                    return "Basis " + base;
+                case 2: return "Biner";
+                case 8: return "Oktal";
+                case 10: return "Desimal";
+                case 16: return "Heksadesimal";
+                default: return "Basis " + base;
             }
         };
 
@@ -78,20 +83,11 @@
             base = parseInt(base);
             var pattern;
             switch (base) {
-                case 2:
-                    pattern = /^-?[01]+$/;
-                    break;
-                case 8:
-                    pattern = /^-?[0-7]+$/;
-                    break;
-                case 10:
-                    pattern = /^-?\d+$/;
-                    break;
-                case 16:
-                    pattern = /^-?[0-9a-fA-F]+$/;
-                    break;
-                default:
-                    return false;
+                case 2: pattern = /^-?[01]+$/; break;
+                case 8: pattern = /^-?[0-7]+$/; break;
+                case 10: pattern = /^-?\d+$/; break;
+                case 16: pattern = /^-?[0-9a-fA-F]+$/; break;
+                default: return false;
             }
             return pattern.test(value);
         };
@@ -101,37 +97,25 @@
             fromBase = parseInt(fromBase);
             toBase = parseInt(toBase);
             value = String(value).trim();
-
             if (!isValidForBase(value, fromBase)) {
-                appState.errorMessage =
-                    "Nilai tidak valid untuk " + getBaseName(fromBase) + ".";
+                appState.errorMessage = formatString(i18n.errorInvalidValueFormat || "Nilai ''{0}'' tidak valid untuk {1}.", value, getBaseName(fromBase));
                 appState.outputValue = "";
-                appState.conversionSteps = "Input tidak valid.";
+                appState.conversionSteps = formatString(i18n.steps.errorInputInvalid || "Input tidak valid: {0}", value);
                 return;
             }
-
             if (value === "" || value === "-") {
                 appState.outputValue = "";
                 appState.errorMessage = "";
-                appState.conversionSteps = "Masukkan nilai untuk dikonversi.";
+                appState.conversionSteps = i18n.steps.promptForInput || "Masukkan nilai untuk dikonversi.";
                 return;
             }
-
             try {
                 var decimalValue;
-                var steps =
-                    "Mengonversi " +
-                    value +
-                    " (basis " +
-                    fromBase +
-                    ") ke basis " +
-                    toBase +
-                    ":\n\n";
+                var steps = formatString(i18n.steps.introFormat || "Mengonversi {0} (basis {1}) ke basis {2}:\n\n", value, getBaseName(fromBase), getBaseName(toBase));
 
                 if (fromBase === 10) {
                     decimalValue = BigInt(value);
-                    steps +=
-                        "1. Nilai input sudah dalam basis 10: " + decimalValue + "\n";
+                    steps += formatString(i18n.steps.inputIsDecimalFormat || "1. Nilai input sudah dalam basis {0}: {1}\n", getBaseName(10), decimalValue);
                 } else {
                     var tempValue = value;
                     var isNegative = false;
@@ -139,79 +123,47 @@
                         isNegative = true;
                         tempValue = value.substring(1);
                     }
-
                     if (fromBase === 16) decimalValue = BigInt("0x" + tempValue);
                     else if (fromBase === 8) decimalValue = BigInt("0o" + tempValue);
                     else if (fromBase === 2) decimalValue = BigInt("0b" + tempValue);
                     else {
-                        appState.errorMessage =
-                            "Konversi dari basis " +
-                            fromBase +
-                            " tidak didukung secara langsung.";
+                        appState.errorMessage = formatString(i18n.errorBaseNotSupportedFormat || "Konversi dari basis {0} tidak didukung.", getBaseName(fromBase));
                         return;
                     }
-
                     if (isNegative) decimalValue = -decimalValue;
-                    steps +=
-                        "1. Konversi " + value + " (basis " + fromBase + ") ke basis 10:\n";
-                    steps += "   = " + decimalValue + " (basis 10)\n";
+                    steps += formatString(i18n.steps.convertToDecimalFormat || "1. Konversi {0} (basis {1}) ke basis {2}:\n", value, getBaseName(fromBase), getBaseName(10));
+                    steps += formatString(i18n.steps.eqDecimalFormat || "   = {0} (basis {1})\n", decimalValue, getBaseName(10));
                 }
                 steps += "\n";
-
                 if (toBase === 10) {
                     appState.outputValue = decimalValue.toString();
-                    steps += "2. Hasil akhir (basis 10): " + appState.outputValue;
+                    steps += formatString(i18n.steps.finalResultDecimalFormat || "2. Hasil akhir (basis {0}): {1}", getBaseName(10), appState.outputValue);
                 } else {
                     if (decimalValue === BigInt(0)) {
                         appState.outputValue = "0";
                     } else {
                         appState.outputValue = decimalValue.toString(toBase);
                     }
-                    steps +=
-                        "2. Konversi " +
-                        decimalValue +
-                        " (basis 10) ke basis " +
-                        toBase +
-                        ":\n";
+                    steps += formatString(i18n.steps.convertToBaseFormat || "2. Konversi {0} (basis {1}) ke basis {2}:\n", decimalValue, getBaseName(10), getBaseName(toBase));
                     if (decimalValue >= 0) {
                         var num = decimalValue;
                         if (num === BigInt(0))
-                            steps += "   0 / " + toBase + " = 0 sisa 0\n";
+                            steps += formatString(i18n.steps.divisionFormat || "   {0} / {1} = {2} sisa {3}\n", 0, toBase, 0, 0);
                         var stepDetails = "";
                         while (num > 0) {
                             var remainder = num % BigInt(toBase);
-                            stepDetails =
-                                "   " +
-                                num +
-                                " / " +
-                                toBase +
-                                " = " +
-                                num / BigInt(toBase) +
-                                " sisa " +
-                                parseInt(remainder.toString()).toString(toBase).toUpperCase() +
-                                "\n" +
-                                stepDetails;
-                            num /= BigInt(toBase);
+                            var quotient = num / BigInt(toBase);
+                            stepDetails = formatString(i18n.steps.divisionFormat || "   {0} / {1} = {2} sisa {3}\n",
+                                num, toBase, quotient, parseInt(remainder.toString()).toString(toBase).toUpperCase()) + stepDetails;
+                            num = quotient;
                         }
                         steps += stepDetails;
-                        steps +=
-                            "   Baca sisa dari bawah ke atas: " +
-                            appState.outputValue.toUpperCase() +
-                            "\n";
+                        steps += formatString(i18n.steps.readRemaindersFormat || "   Baca sisa dari bawah ke atas: {0}\n", appState.outputValue.toUpperCase());
                     } else {
-                        steps +=
-                            "   Untuk angka negatif, konversi nilai absolutnya lalu tambahkan tanda '-' di depan.\n";
-                        steps +=
-                            "   |" +
-                            decimalValue +
-                            "| (" +
-                            getBaseName(10) +
-                            ") = " +
-                            (-decimalValue).toString(toBase).toUpperCase() +
-                            " (" +
-                            getBaseName(toBase) +
-                            ")\n";
-                        steps += "   Hasil: " + appState.outputValue.toUpperCase() + "\n";
+                        steps += (i18n.steps.negativeAbsolute || "   Untuk angka negatif, konversi nilai absolutnya lalu tambahkan tanda '-' di depan.\n");
+                        steps += formatString(i18n.steps.absoluteValueFormat || "   |{0}| (basis {1}) = {2} (basis {3})\n",
+                            decimalValue, getBaseName(10), (-decimalValue).toString(toBase).toUpperCase(), getBaseName(toBase));
+                        steps += formatString(i18n.steps.resultFormat || "   Hasil: {0}\n", appState.outputValue.toUpperCase());
                     }
                 }
                 appState.errorMessage = "";
@@ -219,45 +171,29 @@
 
                 if (appState.outputValue || appState.outputValue === "0") {
                     addToHistory({
-                        input: value,
-                        fromBase: fromBase,
-                        output: appState.outputValue,
-                        toBase: toBase,
-                        timestamp: new Date().getTime(),
+                        input: value, fromBase: fromBase, output: appState.outputValue, toBase: toBase, timestamp: new Date().getTime(),
                     });
                 }
             } catch (e) {
                 console.error("Conversion error:", e);
-                appState.errorMessage = "Terjadi kesalahan saat konversi.";
+                appState.errorMessage = i18n.errorConversion || "Terjadi kesalahan saat konversi.";
                 appState.outputValue = "";
-                appState.conversionSteps = "Error: " + e.message;
+                appState.conversionSteps = "Error: " + e.message; // Biarkan pesan error dari exception jika spesifik
             }
         };
 
         // --- UI UPDATE FUNCTIONS ---
         var updateUI = function () {
-            $inputLabel.text("Nilai " + getBaseName(appState.inputBase));
-            $outputLabel.text("Hasil " + getBaseName(appState.outputBase));
-            $inputValueInput.attr(
-                "placeholder",
-                "Contoh untuk " + getBaseName(appState.inputBase)
-            );
-
-            $outputValueInput.val(
-                formatNumber(
-                    appState.outputValue,
-                    appState.outputBase,
-                    appSettings.groupDigits
-                )
-            );
-
+            $inputLabel.text(formatString(i18n.labels.inputValuePrefix || "Nilai {0}", getBaseName(appState.inputBase)));
+            $outputLabel.text(formatString(i18n.labels.outputValuePrefix || "Hasil {0}", getBaseName(appState.outputBase)));
+            $inputValueInput.attr("placeholder", formatString(i18n.labels.inputValuePlaceholderPrefix || "Contoh untuk {0}", getBaseName(appState.inputBase)));
+            $outputValueInput.val(formatNumber(appState.outputValue, appState.outputBase, appSettings.groupDigits));
             $errorMessageP.text(appState.errorMessage);
             if (appState.errorMessage) {
                 $inputValueInput.addClass("error");
             } else {
                 $inputValueInput.removeClass("error");
             }
-
             $conversionStepsContent.text(appState.conversionSteps);
             renderHistory();
         };
@@ -265,22 +201,13 @@
         // --- EVENT HANDLERS ---
         var handleInputChange = function () {
             appState.inputValue = $inputValueInput.val();
-            convertNumber(
-                appState.inputValue,
-                appState.inputBase,
-                appState.outputBase
-            );
+            convertNumber(appState.inputValue, appState.inputBase, appState.outputBase);
             updateUI();
         };
-
         var handleBaseChange = function () {
             appState.inputBase = parseInt($inputBaseSelect.val());
             appState.outputBase = parseInt($outputBaseSelect.val());
-            convertNumber(
-                appState.inputValue,
-                appState.inputBase,
-                appState.outputBase
-            );
+            convertNumber(appState.inputValue, appState.inputBase, appState.outputBase);
             updateUI();
         };
 
@@ -288,19 +215,15 @@
         $(".select2-init").select2({ theme: "bootstrap-5" });
         $inputBaseSelect.on("change", handleBaseChange);
         $outputBaseSelect.on("change", handleBaseChange);
-
         $inputValueInput.on("input", handleInputChange);
-
         $clearButton.on("click", function () {
             appState.inputValue = "";
             appState.outputValue = "";
             appState.errorMessage = "";
-            appState.conversionSteps =
-                "Langkah-langkah akan muncul di sini setelah konversi berhasil.";
+            appState.conversionSteps = i18n.stepsPlaceholder || "Langkah-langkah akan muncul di sini setelah konversi berhasil.";
             $inputValueInput.val("");
             updateUI();
         });
-
         $copyOutputButton.on("click", function () {
             var valueToCopy = appState.outputValue;
             if (valueToCopy || valueToCopy === "0") {
@@ -311,7 +234,7 @@
                             var $button = $(this);
                             var originalIcon = $button.html();
                             $button.html(
-                                '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="green" style="width: 1.25rem; height: 1.25rem;"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>'
+                                '<i class="fa-solid fa-check" style="color: #63E6BE;"></i>'
                             );
                             setTimeout(function () {
                                 $button.html(originalIcon);
@@ -328,23 +251,23 @@
             var tempBase = appState.inputBase;
             appState.inputBase = appState.outputBase;
             appState.outputBase = tempBase;
-
+            var oldInputValue = appState.inputValue;
+            var oldOutputValue = appState.outputValue;
             $inputBaseSelect.val(appState.inputBase).trigger("change.select2");
             $outputBaseSelect.val(appState.outputBase).trigger("change.select2");
-
-            var currentOutput = appState.outputValue;
-            if (currentOutput && isValidForBase(currentOutput, appState.inputBase)) {
-                appState.inputValue = currentOutput;
-                $inputValueInput.val(currentOutput);
-            } else if (currentOutput) {
+            if (oldOutputValue && isValidForBase(oldOutputValue, appState.inputBase)) {
+                appState.inputValue = oldOutputValue;
+                $inputValueInput.val(oldOutputValue);
+            } else if (oldInputValue && isValidForBase(oldInputValue, appState.inputBase)) {
+                appState.inputValue = oldInputValue;
+                $inputValueInput.val(oldInputValue);
+            }
+            else {
                 appState.inputValue = "";
                 $inputValueInput.val("");
             }
-            convertNumber(
-                appState.inputValue,
-                appState.inputBase,
-                appState.outputBase
-            );
+            appState.outputValue = "";
+            convertNumber(appState.inputValue, appState.inputBase, appState.outputBase);
             updateUI();
         });
 
@@ -357,10 +280,7 @@
         };
 
         var saveHistory = function () {
-            localStorage.setItem(
-                "conversionHistory_bs_jq",
-                JSON.stringify(appState.history)
-            );
+            localStorage.setItem("conversionHistory_bs_jq", JSON.stringify(appState.history));
         };
 
         var addToHistory = function (item) {
@@ -377,38 +297,30 @@
                 var $noHistoryLi = $("<li></li>")
                     .attr("id", "no-history-item")
                     .addClass("list-group-item text-body-secondary")
-                    .text("Belum ada histori.");
+                    .text(i18n.emptyHistory || "Belum ada histori.");
                 $historyList.append($noHistoryLi);
                 $clearHistoryButton.addClass("d-none");
             } else {
                 $.each(appState.history, function (index, item) {
                     var $li = $("<li></li>").addClass(
-                        "list-group-item d-flex justify-content-between align-items-center history-item"
-                    );
-
+                        "list-group-item d-flex justify-content-between align-items-center history-item");
                     var $textSpan = $("<span></span>").text(
-                        formatNumber(item.input, item.fromBase, false) +
-                        " (" +
-                        getBaseName(item.fromBase) +
-                        ") → " +
-                        formatNumber(item.output, item.toBase, appSettings.groupDigits) +
-                        " (" +
-                        getBaseName(item.toBase) +
-                        ")"
+                        formatNumber(item.input, item.fromBase, false) + " (" +
+                        getBaseName(item.fromBase) + ") → " +
+                        formatNumber(item.output, item.toBase, appSettings.groupDigits) + " (" +
+                        getBaseName(item.toBase) + ")"
                     );
-
                     var $deleteBtn = $("<button></button>")
                         .html(
                             '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 1rem; height: 1rem;" class="text-danger"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>'
                         )
-                        .attr("title", "Hapus item ini")
+                        .attr("title", i18n.historyDeleteTooltip || "Hapus item ini")
                         .addClass("btn btn-sm btn-icon delete-history-btn opacity-0")
                         .on("click", function () {
                             appState.history.splice(index, 1);
                             saveHistory();
                             renderHistory();
                         });
-
                     $li.append($textSpan).append($deleteBtn);
                     $historyList.append($li);
                 });
@@ -432,14 +344,7 @@
             $html.attr("data-bs-theme", appSettings.isDarkMode ? "dark" : "light");
             $themeToggleCheckbox.prop("checked", appSettings.isDarkMode);
             $groupingToggleCheckbox.prop("checked", appSettings.groupDigits);
-
-            $outputValueInput.val(
-                formatNumber(
-                    appState.outputValue,
-                    appState.outputBase,
-                    appSettings.groupDigits
-                )
-            );
+            $outputValueInput.val(formatNumber(appState.outputValue, appState.outputBase, appSettings.groupDigits));
             renderHistory();
         };
 
@@ -456,10 +361,7 @@
         };
 
         var saveSettings = function () {
-            localStorage.setItem(
-                "converterSettings_bs_jq",
-                JSON.stringify(appSettings)
-            );
+            localStorage.setItem("converterSettings_bs_jq", JSON.stringify(appSettings));
         };
 
         $themeToggleCheckbox.on("change", function () {
@@ -478,12 +380,15 @@
         var initializeApp = function () {
             loadSettings();
             loadHistory();
+            $inputBaseSelect.val(appState.inputBase);
+            $outputBaseSelect.val(appState.outputBase);
 
-            $inputBaseSelect.val(appState.inputBase).trigger("change");
-            $outputBaseSelect.val(appState.outputBase).trigger("change");
-            updateUI();
+            if ($inputValueInput.val()) {
+                handleInputChange();
+            } else {
+                updateUI();
+            }
         };
-
         initializeApp();
     });
 })(jQuery);
